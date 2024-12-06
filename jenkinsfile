@@ -20,7 +20,7 @@ pipeline {
             steps {
                 script {
                     // Execute the build script
-                    sh './build.sh'
+                    sh '/devops-build/build.sh'
                 }
             }
         }
