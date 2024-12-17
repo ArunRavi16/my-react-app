@@ -2,11 +2,8 @@ pipeline {
     agent any
     environment {
         DOCKER_IMAGE = 'arunchan2024/react-app'
-        DOCKER_HUB_USER = 'arunchan2024'
-        DOCKER_HUB_PASSWORD = '770Game r'
-        AWS_CREDENTIALS = credentials('3822fb7f-a862-4c87-ae5f-1a9454a28769')
-        EC2_INSTANCE = 'ec2-user@34.220.2.75'
-        SSH_KEY_PATH = '/Users/Arun Ravichandran/Downloads/arun_test_key1.pem'
+        AWS_EC2_USER = 'ec2-user'
+        AWS_EC2_IP = '34.220.2.75'
     }
     stages {
         stage('Checkout') {
@@ -19,7 +16,6 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Execute the build script
                     sh '/devops-build/build.sh'
                 }
             }
@@ -28,8 +24,12 @@ pipeline {
         stage('Push Docker Image to Docker Hub') {
             steps {
                 script {
-                    docker.withRegistry('', "${DOCKER_HUB_USER}:${DOCKER_HUB_PASSWORD}") {
-                        docker.image("${DOCKER_IMAGE}:latest").push()
+                    withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials-id', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD')]) {
+                        sh """
+                        echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USER" --password-stdin
+                        docker tag ${DOCKER_IMAGE}:latest ${DOCKER_IMAGE}:latest
+                        docker push ${DOCKER_IMAGE}:latest
+                        """
                     }
                 }
             }
@@ -37,9 +37,10 @@ pipeline {
 
         stage('Deploy to AWS EC2') {
             steps {
-                script {
-                    // Execute the deployment script
-                    sh './deploy.sh'
+                withCredentials([sshUserPrivateKey(credentialsId: 'ssh-key-credentials-id', keyFileVariable: 'SSH_KEY_PATH')]) {
+                    sh """
+                    ssh -i $SSH_KEY_PATH ${AWS_EC2_USER}@${AWS_EC2_IP} 'bash -s' < ./deploy.sh
+                    """
                 }
             }
         }
