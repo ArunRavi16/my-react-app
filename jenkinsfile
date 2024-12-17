@@ -16,7 +16,8 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Use the correct path to the build script
+                    // Ensure the script is executable
+                    sh 'chmod +x ./devops-build/build.sh'
                     sh './devops-build/build.sh'
                 }
             }
