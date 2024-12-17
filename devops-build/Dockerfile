@@ -5,11 +5,11 @@ FROM node:22 AS build
 WORKDIR /app
 
 # Copy the package.json files and install dependencies
-COPY devops-build/package*.json ./
+COPY ./devops-build/package*.json ./
 RUN npm install
 
 # Copy the rest of the app's source code
-COPY devops-build/ ./
+COPY ./devops-build/ ./
 
 # Build the React app (this assumes there is a build step like 'npm run build')
 RUN npm run build
