@@ -4,6 +4,7 @@ pipeline {
         DOCKER_IMAGE = 'arunchan2024/react-app'
         AWS_EC2_USER = 'ec2-user'
         AWS_EC2_IP = '34.220.2.75'
+        GIT_SSL_BACKEND = 'openssl'
     }
     stages {
         stage('Checkout') {
