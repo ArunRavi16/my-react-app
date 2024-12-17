@@ -1,9 +1,8 @@
 #!/bin/bash
 # build.sh - Build Docker image
 
-# Ensure that we are in the correct directory
-cd C:\Users\Arun Ravichandran\Devops-project\devops-build
+# Ensure we are in the correct directory (relative path)
+cd $(dirname "$0")
 
 # Build Docker image
 docker build -t react-app .
-
