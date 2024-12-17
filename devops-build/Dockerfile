@@ -1,26 +1,33 @@
-# Step 1: Build the React app
+# Step 1: Use a Node.js 22 base image for building the app
 FROM node:22 AS build
 
+# Set working directory in the container
 WORKDIR /app
 
-# Install dependencies
+# Copy the package.json files and install dependencies
 COPY devops-build/package*.json ./
 RUN npm install
 
-# Copy the rest of the application files
+# Copy the rest of the app's source code
 COPY devops-build/ ./
 
-# Build the React app
+# Build the React app (this assumes there is a build step like 'npm run build')
 RUN npm run build
 
-# Step 2: Set up the Nginx server to serve the app
+# Step 2: Use Nginx to serve the built app
 FROM nginx:alpine
 
-# Copy the built React app from the build container to Nginx's html directory
-COPY --from=build /app/build /usr/share/nginx/html
+# Set working directory in the container
+WORKDIR /usr/share/nginx/html
 
-# Expose port 80 to be accessed outside the container
+# Remove default Nginx static files
+RUN rm -rf ./*
+
+# Copy the build folder from the first stage
+COPY --from=build /app/build/ .
+
+# Expose port 80 for the app
 EXPOSE 80
 
-# Command to run Nginx in the container
+# Start Nginx
 CMD ["nginx", "-g", "daemon off;"]
