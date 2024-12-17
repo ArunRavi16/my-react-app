@@ -16,7 +16,8 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    sh '/devops-build/build.sh'
+                    // Use the correct path to the build script
+                    sh './devops-build/build.sh'
                 }
             }
         }
@@ -39,7 +40,7 @@ pipeline {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'ssh-key-credentials-id', keyFileVariable: 'SSH_KEY_PATH')]) {
                     sh """
-                    ssh -i $SSH_KEY_PATH ${AWS_EC2_USER}@${AWS_EC2_IP} 'bash -s' < ./deploy.sh
+                    ssh -i $SSH_KEY_PATH ${AWS_EC2_USER}@${AWS_EC2_IP} 'bash -s' < ./devops-build/deploy.sh
                     """
                 }
             }
